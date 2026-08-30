@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="DocuCheck — Automated document and resume error checking with grammar, formatting, and smart keyword suggestions." />
+    <title>DocuCheck — Smart Resume & Document Error Checker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- ======================= NAVBAR ======================= -->
+    <header class="navbar" id="navbar">
+        <nav class="nav-container">
+            <a href="#home" class="brand" aria-label="DocuCheck home">
+                <span class="brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 2L4 5.5v5.7c0 4.9 3.4 9.4 8 10.8 4.6-1.4 8-5.9 8-10.8V5.5L12 2z" fill="currentColor" opacity="0.25" />
+                        <path d="M8.5 12l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
+                <span class="brand-name">Docu<span class="brand-accent">Check</span></span>
+            </a>
+
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#pricing" class="nav-link">Pricing</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li class="nav-cta-mobile"><a href="#analyzer" class="btn btn-primary btn-sm">Get Started</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="#analyzer" class="btn btn-primary btn-sm">Get Started</a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ======================= HERO ======================= -->
+    <section class="hero" id="home">
+        <div class="hero-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="grid-overlay"></div>
+        </div>
+
+        <div class="hero-content">
+            <span class="hero-badge">
+                <span class="badge-dot"></span>
+                AI-Powered Document Analysis
+            </span>
+            <h1 class="hero-title">
+                Catch Every Mistake Before <span class="gradient-text">They Catch You</span>
+            </h1>
+            <p class="hero-subtitle">
+                DocuCheck automatically detects grammar issues, analyzes document formatting,
+                and delivers <strong>smart suggestions</strong> tailored to your resume details —
+                so your applications always look flawless.
+            </p>
+
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">10k+</span>
+                    <span class="stat-label">Documents Checked</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">98.4%</span>
+                    <span class="stat-label">Detection Accuracy</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">30+</span>
+                    <span class="stat-label">Smart Checks</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================= ANALYZER / UPLOAD ======================= -->
+    <section class="analyzer-section" id="analyzer">
+        <div class="section-heading">
+            <h2>Analyze Your Document</h2>
+            <p>Upload a PDF / DOCX file or paste your resume details directly below.</p>
+        </div>
+
+        <div class="analyzer-grid">
+            <!-- Left column: file upload -->
+            <div class="card upload-card">
+                <h3 class="card-title">Upload File</h3>
+
+                <div class="dropzone" id="dropzone">
+                    <div class="dropzone-icon">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M4 15v3a3 3 0 003 3h10a3 3 0 003-3v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6" />
+                        </svg>
+                    </div>
+                    <p class="dropzone-title">Drag &amp; drop your file here</p>
+                    <p class="dropzone-hint">PDF or DOCX, up to 10 MB</p>
+                    <button class="btn btn-outline btn-sm" id="browse-btn" type="button">Browse File</button>
+                    <input type="file" id="file-input" accept=".pdf,.docx" hidden />
+                </div>
+
+                <div class="file-status" id="file-status" aria-live="polite"></div>
+            </div>
+
+            <!-- Right column: paste text -->
+            <div class="card paste-card">
+                <h3 class="card-title">Or Paste Text Directly</h3>
+                <textarea
+                    id="text-input"
+                    class="text-input"
+                    rows="8"
+                    placeholder="Paste your resume text here...&#10;Example:&#10;Software Engineer with 5 years of experience building scalable web applications.&#10;Skills: JavaScript, Python, React, Node.js"
+                ></textarea>
+                <div class="paste-actions">
+                    <button class="btn btn-ghost btn-sm" id="clear-btn" type="button">Clear</button>
+                    <span class="char-count" id="char-count">0 / 5,000 chars</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyze CTA -->
+        <div class="analyze-wrap">
+            <button class="btn btn-primary btn-lg" id="analyze-btn" type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+                    <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                Analyze Document
+            </button>
+            <p class="analyze-note">Instant results — no sign-up required.</p>
+        </div>
+    </section>
+
+    <!-- ======================= RESULTS ======================= -->
+    <section class="results-section" id="results" aria-live="polite">
+        <div class="section-heading">
+            <h2>Analysis Results</h2>
+            <p>Here's how your document performed.</p>
+        </div>
+
+        <!-- Score summary -->
+        <div class="card score-card">
+            <div class="score-ring" id="score-ring" style="--score: 0">
+                <div class="score-inner">
+                    <span class="score-value" id="score-value">0</span>
+                    <span class="score-max">/ 100</span>
+                </div>
+            </div>
+            <div class="score-meta">
+                <span class="score-label" id="score-label">Document Health Score</span>
+                <p class="score-desc" id="score-desc">Run an analysis to see your document health.</p>
+            </div>
+        </div>
+
+        <!-- Category cards -->
+        <div class="results-grid">
+            <div class="card result-card critical">
+                <div class="result-card-header">
+                    <span class="result-icon">❌</span>
+                    <h3>Critical Errors</h3>
+                    <span class="count-badge" id="critical-count">0</span>
+                </div>
+                <ul class="result-list" id="critical-list">
+                    <li class="placeholder-item">No issues detected yet.</li>
+                </ul>
+            </div>
+
+            <div class="card result-card warning">
+                <div class="result-card-header">
+                    <span class="result-icon">⚠️</span>
+                    <h3>Formatting Warnings</h3>
+                    <span class="count-badge" id="warning-count">0</span>
+                </div>
+                <ul class="result-list" id="warning-list">
+                    <li class="placeholder-item">No issues detected yet.</li>
+                </ul>
+            </div>
+
+            <div class="card result-card positive">
+                <div class="result-card-header">
+                    <span class="result-icon">✅</span>
+                    <h3>Positive &amp; Smart Suggestions</h3>
+                    <span class="count-badge" id="positive-count">0</span>
+                </div>
+                <ul class="result-list" id="positive-list">
+                    <li class="placeholder-item">Run an analysis to see feedback.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================= FEATURES / PRICING / ABOUT (anchors) ======================= -->
+    <section class="info-section" id="features">
+        <div class="section-heading">
+            <h2>Why Teams Love DocuCheck</h2>
+        </div>
+        <div class="features-grid">
+            <div class="card feature-card">
+                <span class="feature-icon">🧠</span>
+                <h3>Grammar Checking</h3>
+                <p>Real-time spelling and grammar detection so every sentence reads professionally.</p>
+            </div>
+            <div class="card feature-card">
+                <span class="feature-icon">📐</span>
+                <h3>Formatting Analysis</h3>
+                <p>Font consistency, alignment, and layout checks to keep your resume polished.</p>
+            </div>
+            <div class="card feature-card">
+                <span class="feature-icon">✨</span>
+                <h3>Smart Keyword Suggestions</h3>
+                <p>Tailored skill keywords based on your role and experience details.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-section" id="pricing">
+        <div class="section-heading">
+            <h2>Simple, Transparent Pricing</h2>
+        </div>
+        <div class="pricing-grid">
+            <div class="card pricing-card">
+                <h3>Free</h3>
+                <p class="price">$0<span>/mo</span></p>
+                <ul>
+                    <li>3 analyses per month</li>
+                    <li>Core error detection</li>
+                    <li>Basic keyword tips</li>
+                </ul>
+                <a href="#analyzer" class="btn btn-outline btn-block">Start Free</a>
+            </div>
+            <div class="card pricing-card featured">
+                <span class="featured-tag">Most Popular</span>
+                <h3>Pro</h3>
+                <p class="price">$9<span>/mo</span></p>
+                <ul>
+                    <li>Unlimited analyses</li>
+                    <li>Advanced formatting audit</li>
+                    <li>Smart keyword suggestions</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="#analyzer" class="btn btn-primary btn-block">Go Pro</a>
+            </div>
+            <div class="card pricing-card">
+                <h3>Team</h3>
+                <p class="price">$24<span>/mo</span></p>
+                <ul>
+                    <li>Everything in Pro</li>
+                    <li>5 team seats</li>
+                    <li>Shared templates</li>
+                </ul>
+                <a href="#analyzer" class="btn btn-outline btn-block">Contact Sales</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-section" id="about">
+        <div class="section-heading">
+            <h2>About DocuCheck</h2>
+        </div>
+        <div class="card about-card">
+            <p>
+                DocuCheck was built to help job seekers, students, and professionals submit
+                flawless documents every time. By combining automated error detection with
+                actionable formatting and keyword feedback, we make it easy to present your
+                best self on paper — and on screen.
+            </p>
+        </div>
+    </section>
+
+    <!-- ======================= FOOTER ======================= -->
+    <footer class="footer">
+        <div class="footer-content">
+            <a href="#home" class="brand">
+                <span class="brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 2L4 5.5v5.7c0 4.9 3.4 9.4 8 10.8 4.6-1.4 8-5.9 8-10.8V5.5L12 2z" fill="currentColor" opacity="0.25" />
+                        <path d="M8.5 12l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
+                <span class="brand-name">Docu<span class="brand-accent">Check</span></span>
+            </a>
+            <p class="footer-tag">Smart document &amp; resume error checking.</p>
+            <p class="footer-copy">© 2024 DocuCheck. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
