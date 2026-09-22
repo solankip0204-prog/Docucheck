@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Snip — Shorten links. Run anywhere.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f3f9ef;
+    --surface: #ffffff;
+    --surface-2: #eaf5e2;
+    --line: #cfe4c4;
+    --text: #16261a;
+    --muted: #5b7360;
+    --green-1: #3f9b4f;
+    --green-2: #2d7a3d;
+    --green-dim: #e2f2da;
+    --radius: 3px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(600px 400px at 85% -10%, rgba(63,155,79,0.10), transparent 60%),
+      radial-gradient(500px 300px at -5% 30%, rgba(45,122,61,0.08), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  h1,h2,h3, .display{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+
+  a{ color: inherit; text-decoration: none; }
+
+  .wrap{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: sticky;
+    top:0;
+    z-index: 20;
+    background: rgba(243,249,239,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height: 68px;
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 19px;
+  }
+  .logo-mark{
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--green-1), var(--green-2));
+    display:flex; align-items:center; justify-content:center;
+    color:#ffffff;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .navlinks{ display:flex; gap:32px; font-size:14.5px; color: var(--muted); }
+  .navlinks a:hover{ color: var(--text); }
+  .navcta{
+    padding: 9px 18px;
+    border: 1px solid var(--green-2);
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--green-1);
+  }
+  .navcta:hover{ background: var(--green-dim); }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    position: relative;
+    z-index:1;
+    padding: 88px 0 70px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .kicker{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--green-1);
+    background: var(--green-dim);
+    border: 1px solid #b9dba9;
+    padding: 5px 10px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+  }
+  .kicker .dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--green-1);
+    box-shadow: 0 0 8px var(--green-1);
+  }
+  h1.hero-title{
+    font-size: 54px;
+    line-height: 1.08;
+    margin-bottom: 22px;
+    font-weight: 600;
+  }
+  h1.hero-title .accent{
+    font-style: italic;
+    color: var(--green-1);
+  }
+  .hero-sub{
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 46ch;
+    margin-bottom: 34px;
+  }
+  .platform-row{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .platform-chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 7px 12px;
+    border-radius: var(--radius);
+  }
+  .platform-chip b{ color: var(--text); font-weight:500; }
+  .platform-chip .sw{ width:8px; height:8px; border-radius: 2px; }
+
+  /* ---------- SHORTENER CARD ---------- */
+  .tool{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .tool-top{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .tool-top .tdot{ width:9px; height:9px; border-radius:50%; background: #b9d1ac; }
+  .tool-top span{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-left:6px; }
+  .tool-body{ padding: 26px; }
+  .tool-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .tool-input-row{
+    display:flex;
+    gap:10px;
+    margin-bottom: 18px;
+  }
+  #longUrl{
+    flex:1;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 13px 14px;
+    border-radius: var(--radius);
+    font-size: 14.5px;
+    font-family: 'Manrope', sans-serif;
+  }
+  #longUrl:focus{ outline:none; border-color: var(--green-2); }
+  #longUrl::placeholder{ color: #8ba18e; }
+  .btn-primary{
+    background: linear-gradient(135deg, var(--green-1), var(--green-2));
+    color: #ffffff;
+    border:none;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 0 22px;
+    border-radius: var(--radius);
+    cursor:pointer;
+    white-space: nowrap;
+  }
+  .btn-primary:hover{ filter: brightness(1.07); }
+  .btn-primary:active{ transform: translateY(1px); }
+
+  .opts-row{
+    display:flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .opt{
+    flex:1;
+  }
+  .opt label{
+    display:block;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .opt select, .opt input{
+    width:100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    font-size: 13.5px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .opt select:focus, .opt input:focus{ outline:none; border-color: var(--green-2); }
+
+  #resultBox{
+    display:none;
+    background: var(--green-dim);
+    border: 1px solid #b9dba9;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 4px;
+  }
+  #resultBox.show{ display:block; }
+  .result-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  #shortLink{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 15px;
+    color: var(--green-1);
+    word-break: break-all;
+  }
+  .copy-btn{
+    background: transparent;
+    border: 1px solid var(--green-2);
+    color: var(--green-1);
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .copy-btn:hover{ background: rgba(155,229,100,0.08); }
+  .result-meta{
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  .history{
+    margin-top: 18px;
+  }
+  .history-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .history-row .h-short{ color: var(--green-1); font-family:'IBM Plex Mono', monospace; }
+  .history-row .h-long{ color: var(--muted); max-width: 220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* ---------- DEPLOY / REGIONS SECTION ---------- */
+  section.deploy{
+    padding: 96px 0;
+    border-bottom: 1px solid var(--line);
+    position:relative; z-index:1;
+  }
+  .section-head{
+    max-width: 60ch;
+    margin-bottom: 56px;
+  }
+  .section-head .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--green-1);
+    margin-bottom: 12px;
+  }
+  .section-head h2{
+    font-size: 32px;
+    margin-bottom: 14px;
+  }
+  .section-head p{ color: var(--muted); font-size: 15.5px; }
+
+  .cloud-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .cloud-card{
+    background: var(--surface);
+    padding: 30px 26px;
+  }
+  .cloud-card .cname{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .cloud-card .cname .sw{ width:10px; height:10px; border-radius:3px; }
+  .cloud-card p{ color: var(--muted); font-size: 13.5px; margin-bottom: 16px; }
+  .cloud-card ul{ list-style:none; }
+  .cloud-card li{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text);
+    padding: 6px 0;
+    border-top: 1px dashed var(--line);
+  }
+  .cloud-card li:first-child{ border-top:none; }
+
+  /* ---------- FEATURES ---------- */
+  section.features{
+    padding: 96px 0;
+    border-bottom: 1px solid var(--line);
+    position:relative; z-index:1;
+  }
+  .feat-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+  .feat{
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .feat .fnum{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--green-1);
+    margin-bottom: 14px;
+    display:block;
+  }
+  .feat h3{ font-size: 16.5px; margin-bottom: 8px; }
+  .feat p{ font-size: 13.5px; color: var(--muted); }
+
+  /* ---------- CTA ---------- */
+  section.cta-band{
+    padding: 90px 0;
+    text-align:center;
+    position:relative; z-index:1;
+  }
+  .cta-band h2{ font-size: 30px; margin-bottom: 14px; }
+  .cta-band p{ color: var(--muted); margin-bottom: 30px; }
+  .cta-buttons{ display:flex; gap:14px; justify-content:center; }
+  .btn-ghost{
+    padding: 13px 26px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--text);
+  }
+  .btn-ghost:hover{ border-color: var(--green-2); }
+  .btn-solid{
+    padding: 13px 26px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--green-1), var(--green-2));
+    color: #ffffff;
+  }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 30px 0;
+  }
+  footer .wrap{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color: var(--muted);
+    font-size: 12.5px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  footer .flinks{ display:flex; gap:20px; }
+  footer a:hover{ color: var(--text); }
+
+  @media (max-width: 880px){
+    .hero-grid{ grid-template-columns: 1fr; }
+    .cloud-grid{ grid-template-columns: 1fr; }
+    .feat-grid{ grid-template-columns: 1fr 1fr; }
+    h1.hero-title{ font-size: 36px; }
+    .navlinks{ display:none; }
+  }
+
+  :focus-visible{ outline: 2px solid var(--green-1); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark">S</span>Snip</div>
+    <div class="navlinks">
+      <a href="#tool">Shorten</a>
+      <a href="#deploy">Deploy anywhere</a>
+      <a href="#features">Features</a>
+    </div>
+    <a class="navcta" href="#tool">Get a link</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker"><span class="dot"></span>cloud-agnostic by design</div>
+      <h1 class="hero-title">Short links that don't<br>care whose cloud<br>you're <span class="accent">running on.</span></h1>
+      <p class="hero-sub">Snip is a URL shortener you can deploy on Azure today and move to AWS or Google Cloud tomorrow — same static build, same API contract, zero rewrite.</p>
+      <div class="platform-row">
+        <div class="platform-chip"><span class="sw" style="background:#9be564"></span><b>Azure</b> App Service · Static Web Apps</div>
+        <div class="platform-chip"><span class="sw" style="background:#4f9d5c"></span><b>AWS</b> Amplify · S3 + CloudFront</div>
+        <div class="platform-chip"><span class="sw" style="background:#6fbf7a"></span><b>Google Cloud</b> Run · Firebase Hosting</div>
+      </div>
+    </div>
+
+    <div class="tool" id="tool">
+      <div class="tool-top">
+        <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
+        <span>snip.link — new</span>
+      </div>
+      <div class="tool-body">
+        <div class="tool-label">// paste the link to shorten</div>
+        <div class="tool-input-row">
+          <input id="longUrl" type="text" placeholder="https://portal.azure.com/very/long/path/to/a/resource" />
+          <button class="btn-primary" onclick="shorten()">Shorten</button>
+        </div>
+        <div class="opts-row">
+          <div class="opt">
+            <label>region</label>
+            <select id="region">
+              <option>Azure · East US</option>
+              <option>AWS · us-east-1</option>
+              <option>GCP · us-central1</option>
+            </select>
+          </div>
+          <div class="opt">
+            <label>custom slug (optional)</label>
+            <input id="slug" type="text" placeholder="my-link" />
+          </div>
+        </div>
+        <div id="resultBox">
+          <div class="result-row">
+            <div id="shortLink" class="mono">—</div>
+            <button class="copy-btn" onclick="copyLink()">Copy</button>
+          </div>
+          <div class="result-meta" id="resultMeta"></div>
+        </div>
+        <div class="history" id="history"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="deploy" id="deploy">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">// portability</div>
+      <h2>One codebase. Three clouds, no branching.</h2>
+      <p>Snip ships as a static front end plus a single lightweight redirect function. Point it at whichever platform your team already pays for.</p>
+    </div>
+    <div class="cloud-grid">
+      <div class="cloud-card">
+        <div class="cname"><span class="sw" style="background:#9be564"></span>Microsoft Azure</div>
+        <p>Deploy the front end to Static Web Apps and the redirect logic as an Azure Function bound to the same route.</p>
+        <ul>
+          <li>az staticwebapp create</li>
+          <li>Cosmos DB for link storage</li>
+          <li>Front Door for edge caching</li>
+        </ul>
+      </div>
+      <div class="cloud-card">
+        <div class="cname"><span class="sw" style="background:#4f9d5c"></span>Amazon Web Services</div>
+        <p>Host on S3 behind CloudFront, with redirects handled by a small Lambda@Edge function.</p>
+        <ul>
+          <li>aws s3 sync ./dist</li>
+          <li>DynamoDB for link storage</li>
+          <li>CloudFront for edge caching</li>
+        </ul>
+      </div>
+      <div class="cloud-card">
+        <div class="cname"><span class="sw" style="background:#6fbf7a"></span>Google Cloud</div>
+        <p>Serve from Firebase Hosting and resolve redirects with a Cloud Run service on the same domain.</p>
+        <ul>
+          <li>firebase deploy</li>
+          <li>Firestore for link storage</li>
+          <li>Cloud CDN for edge caching</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">// what you get</div>
+      <h2>Built to be moved, not just hosted.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat">
+        <span class="fnum">01</span>
+        <h3>Stateless redirects</h3>
+        <p>The redirect function only reads a key-value pair, so it maps cleanly onto any provider's function runtime.</p>
+      </div>
+      <div class="feat">
+        <span class="fnum">02</span>
+        <h3>Swappable storage</h3>
+        <p>A thin storage interface sits in front of Cosmos DB, DynamoDB, or Firestore — change one config value to switch.</p>
+      </div>
+      <div class="feat">
+        <span class="fnum">03</span>
+        <h3>Custom slugs</h3>
+        <p>Reserve a memorable path for a link, or let Snip generate a short, collision-checked code automatically.</p>
+      </div>
+      <div class="feat">
+        <span class="fnum">04</span>
+        <h3>Click insight</h3>
+        <p>Every redirect logs a timestamp and referrer so you can see how a link performs, wherever it's hosted.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2>Try it above — no account needed yet.</h2>
+    <p>The demo runs entirely in your browser. Wire up a real backend on your cloud of choice when you're ready.</p>
+    <div class="cta-buttons">
+      <a class="btn-solid" href="#tool">Shorten a link</a>
+      <a class="btn-ghost" href="#deploy">See deploy guides</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Snip</div>
+    <div class="flinks">
+      <a href="#deploy">Deploy</a>
+      <a href="#features">Features</a>
+      <a href="#tool">Shorten</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const history = [];
+  const usedCodes = new Set();
+
+  function randomCode(len = 6){
+    const chars = 'abcdefghijkmnpqrstuvwxyzACDEFGHJKLMNPQRSTUVWXY23456789';
+    let out = '';
+    for(let i=0;i<len;i++) out += chars[Math.floor(Math.random()*chars.length)];
+    return out;
+  }
+
+  function isValidUrl(str){
+    try{ new URL(str); return true; } catch(e){ return false; }
+  }
+
+  function shorten(){
+    const input = document.getElementById('longUrl');
+    const slugInput = document.getElementById('slug');
+    const region = document.getElementById('region').value;
+    let url = input.value.trim();
+
+    if(!url){ input.focus(); return; }
+    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    if(!isValidUrl(url)){
+      input.style.borderColor = '#c25b4a';
+      setTimeout(()=> input.style.borderColor = '', 1200);
+      return;
+    }
+
+    let slug = slugInput.value.trim().replace(/[^a-zA-Z0-9-_]/g, '');
+    if(slug && usedCodes.has(slug)){
+      slug = slug + '-' + randomCode(3);
+    }
+    if(!slug){
+      do { slug = randomCode(); } while(usedCodes.has(slug));
+    }
+    usedCodes.add(slug);
+
+    const shortUrl = 'snip.link/' + slug;
+    document.getElementById('shortLink').textContent = shortUrl;
+    document.getElementById('resultMeta').textContent = 'resolves via ' + region + ' · created just now';
+    document.getElementById('resultBox').classList.add('show');
+
+    history.unshift({ short: shortUrl, long: url });
+    renderHistory();
+
+    input.value = '';
+    slugInput.value = '';
+  }
+
+  function renderHistory(){
+    const box = document.getElementById('history');
+    box.innerHTML = history.slice(0, 5).map(item => `
+      <div class="history-row">
+        <span class="h-short mono">${item.short}</span>
+        <span class="h-long">${item.long}</span>
+      </div>
+    `).join('');
+  }
+
+  function copyLink(){
+    const text = document.getElementById('shortLink').textContent;
+    if(text === '—') return;
+    navigator.clipboard.writeText('https://' + text).then(()=>{
+      const btn = document.querySelector('.copy-btn');
+      const old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(()=> btn.textContent = old, 1200);
+    });
+  }
+
+  document.getElementById('longUrl').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') shorten();
+  });
+</script>
+
+</body>
+</html>
