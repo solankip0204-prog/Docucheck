@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Digital Library</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --gradient-hero: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            --gradient-btn: linear-gradient(90deg, #6366f1, #a855f7);
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR */
+        navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #a855f7;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent-purple);
+        }
+
+        .btn-glow {
+            background: var(--gradient-btn);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* PAGE VIEWS */
+        .page {
+            display: none;
+            padding: 40px 8%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: var(--gradient-hero);
+            border-radius: 20px;
+            padding: 60px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #4338ca;
+        }
+
+        .hero-text {
+            max-width: 55%;
+        }
+
+        .hero-text h1 {
+            font-size: 44px;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #ffffff, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            color: var(--text-muted);
+            font-size: 18px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .hero-img img {
+            width: 320px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* SEARCH & CATEGORIES */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            margin-bottom: 25px;
+        }
+
+        .search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 35px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-purple) var(--card-bg);
+        }
+
+        .cat-btn {
+            background: var(--card-bg);
+            color: var(--text-muted);
+            border: 1px solid #334155;
+            padding: 10px 22px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .cat-btn:hover, .cat-btn.active {
+            background: var(--accent-purple);
+            color: white;
+            border-color: var(--accent-purple);
+        }
+
+        /* BOOK CARDS GRID */
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--accent-purple);
+            padding-left: 15px;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .book-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid #334155;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.25);
+        }
+
+        .book-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .book-card h3 {
+            font-size: 17px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            width: fit-content;
+        }
+
+        /* LOGIN PAGE */
+        .login-box {
+            max-width: 400px;
+            margin: 60px auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        /* DASHBOARD */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-card i {
+            font-size: 35px;
+            color: var(--accent-purple);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        th { background: #0f172a; color: var(--text-muted); }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--accent-purple);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <navbar>
+        <div class="logo" onclick="showPage('home-page')">
+            <i class="fa-solid fa-book-bookmark"></i> Smart Library
+        </div>
+        <ul class="nav-links">
+            <li><a onclick="showPage('home-page')" id="nav-home" class="active">Home</a></li>
+            <li><a onclick="showPage('books-page')" id="nav-books">Explore Books</a></li>
+            <li><a onclick="showPage('dashboard-page')" id="nav-dash">Dashboard</a></li>
+        </ul>
+        <button class="btn-glow" onclick="showPage('login-page')">Login</button>
+    </navbar>
+
+    <!-- 1. HOME PAGE -->
+    <div id="home-page" class="page active">
+        <div class="hero">
+            <div class="hero-text">
+                <h1>Explore Thousands of Digital Books</h1>
+                <p>Access our complete collection across Fiction, Science, Exam Prep, Technology, Philosophy, Romance, and more.</p>
+                <button class="btn-glow" onclick="showPage('books-page')">Browse Full Collection</button>
+            </div>
+            <div class="hero-img">
+                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=500" alt="Library">
+            </div>
+        </div>
+
+        <h2 class="section-title">Trending Picks</h2>
+        <div class="books-grid" id="featuredBooksContainer">
+            <!-- Dynamically Loaded Featured Books -->
+        </div>
+    </div>
+
+    <!-- 2. ALL BOOKS & UNLIMITED CATEGORIES PAGE -->
+    <div id="books-page" class="page">
+        <h2 class="section-title">Complete Library Catalog</h2>
+        
+        <!-- Live Search Bar -->
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" id="searchInput" onkeyup="filterBooks()" placeholder="Search by book title, author, or category...">
+        </div>
+
+        <!-- Unlimited Dynamic Categories Scroll Bar -->
+        <div class="category-scroll" id="categoryContainer">
+            <!-- Categories injected via JS -->
+        </div>
+
+        <!-- Books Container Grid -->
+        <div class="books-grid" id="booksContainer">
+            <!-- Books injected via JS -->
+        </div>
+    </div>
+
+    <!-- 3. DASHBOARD PAGE -->
+    <div id="dashboard-page" class="page">
+        <h2 class="section-title">Admin Dashboard</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fa-solid fa-book-open"></i>
+                <div>
+                    <h2 id="totalBooksCount">0</h2>
+                    <p style="color:var(--text-muted)">Total Books Listed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-layer-group"></i>
+                <div>
+                    <h2 id="totalCategoriesCount">0</h2>
+                    <p style="color:var(--text-muted)">Total Categories</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-users"></i>
+                <div>
+                    <h2>2,840</h2>
+                    <p style="color:var(--text-muted)">Active Readers</p>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 20px;">Recent Book Activity</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Book Title</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#USR-8821</td>
+                    <td>Atomic Habits</td>
+                    <td>Self-Help</td>
+                    <td style="color:#10b981;">Returned</td>
+                </tr>
+                <tr>
+                    <td>#USR-4311</td>
+                    <td>Dune</td>
+                    <td>Science Fiction</td>
+                    <td style="color:#f59e0b;">Issued</td>
+                </tr>
+                <tr>
+                    <td>#USR-9012</td>
+                    <td>Clean Code</td>
+                    <td>Technology & Programming</td>
+                    <td style="color:#f59e0b;">Issued</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 4. LOGIN PAGE -->
+    <div id="login-page" class="page">
+        <div class="login-box">
+            <h2 style="margin-bottom: 10px;">Account Login</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Login to access your library bookshelf</p>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="user@library.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <button class="btn-glow" style="width: 100%; margin-top: 10px;">Sign In</button>
+        </div>
+    </div>
+
+    <!-- BOOK DETAILS MODAL -->
+    <div class="modal" id="bookModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="margin-bottom: 10px;">Book Title</h2>
+            <p id="modalAuthor" style="color: var(--accent-purple); margin-bottom: 15px;">Author</p>
+            <p id="modalDesc" style="color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">Book Description...</p>
+            <button class="btn-glow" style="width: 100%;">Read / Borrow Book</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DATABASE & LOGIC -->
+    <script>
+        // FULL DATASET (All books from user list)
+        const booksData = [
+            // Fiction
+            { title: "The Alchemist", author: "Paulo Coelho", category: "Fiction", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "1984", author: "George Orwell", category: "Fiction", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "Animal Farm", author: "George Orwell", category: "Fiction", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "To Kill a Mockingbird", author: "Harper Lee", category: "Fiction", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+            { title: "The Great Gatsby", author: "F. Scott Fitzgerald", category: "Fiction", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "Pride and Prejudice", author: "Jane Austen", category: "Fiction", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+            { title: "Jane Eyre", author: "Charlotte Brontë", category: "Fiction", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "The Catcher in the Rye", author: "J. D. Salinger", category: "Fiction", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "The Kite Runner", author: "Khaled Hosseini", category: "Fiction", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "The Book Thief", author: "Markus Zusak", category: "Fiction", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+            { title: "The Fault in Our Stars", author: "John Green", category: "Fiction", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+            { title: "The Midnight Library", author: "Matt Haig", category: "Fiction", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+
+            // Fantasy
+            { title: "Harry Potter Series", author: "J. K. Rowling", category: "Fantasy", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "The Hobbit", author: "J. R. R. Tolkien", category: "Fantasy", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "The Lord of the Rings", author: "J. R. R. Tolkien", category: "Fantasy", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "A Game of Thrones", author: "George R. R. Martin", category: "Fantasy", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400" },
+            { title: "The Name of the Wind", author: "Patrick Rothfuss", category: "Fantasy", image: "https://images.unsplash.com/photo-1509021436468-8977c806e017?w=400" },
+            { title: "The Way of Kings", author: "Brandon Sanderson", category: "Fantasy", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+            { title: "The Chronicles of Narnia", author: "C. S. Lewis", category: "Fantasy", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+            { title: "Percy Jackson Series", author: "Rick Riordan", category: "Fantasy", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "The Hunger Games", author: "Suzanne Collins", category: "Fantasy", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "The Priory of the Orange Tree", author: "Samantha Shannon", category: "Fantasy", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+
+            // Mystery & Thriller
+            { title: "The Da Vinci Code", author: "Dan Brown", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1509021436468-8977c806e017?w=400" },
+            { title: "Angels & Demons", author: "Dan Brown", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+            { title: "Gone Girl", author: "Gillian Flynn", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "The Girl on the Train", author: "Paula Hawkins", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "The Silent Patient", author: "Alex Michaelides", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "And Then There Were None", author: "Agatha Christie", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400" },
+            { title: "Murder on the Orient Express", author: "Agatha Christie", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+            { title: "Sherlock Holmes", author: "Arthur Conan Doyle", category: "Mystery & Thriller", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+
+            // Romance
+            { title: "Me Before You", author: "Jojo Moyes", category: "Romance", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+            { title: "The Notebook", author: "Nicholas Sparks", category: "Romance", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "It Ends with Us", author: "Colleen Hoover", category: "Romance", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "The Love Hypothesis", author: "Ali Hazelwood", category: "Romance", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "Beach Read", author: "Emily Henry", category: "Romance", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+
+            // Self-Help
+            { title: "Atomic Habits", author: "James Clear", category: "Self-Help", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "The 7 Habits of Highly Effective People", author: "Stephen R. Covey", category: "Self-Help", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "How to Win Friends and Influence People", author: "Dale Carnegie", category: "Self-Help", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "Think and Grow Rich", author: "Napoleon Hill", category: "Self-Help", image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400" },
+            { title: "The Power of Now", author: "Eckhart Tolle", category: "Self-Help", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+
+            // Business & Entrepreneurship
+            { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", category: "Business", image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400" },
+            { title: "The Lean Startup", author: "Eric Ries", category: "Business", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "Zero to One", author: "Peter Thiel", category: "Business", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "Good to Great", author: "Jim Collins", category: "Business", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "Shoe Dog", author: "Phil Knight", category: "Business", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+
+            // Finance & Investing
+            { title: "The Intelligent Investor", author: "Benjamin Graham", category: "Finance", image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400" },
+            { title: "The Psychology of Money", author: "Morgan Housel", category: "Finance", image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400" },
+            { title: "The Richest Man in Babylon", author: "George S. Clason", category: "Finance", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+
+            // Technology & Programming
+            { title: "Clean Code", author: "Robert C. Martin", category: "Technology", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "The Pragmatic Programmer", author: "Andrew Hunt & David Thomas", category: "Technology", image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400" },
+            { title: "Python Crash Course", author: "Eric Matthes", category: "Technology", image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=400" },
+            { title: "Eloquent JavaScript", author: "Marijn Haverbeke", category: "Technology", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+
+            // Science
+            { title: "A Brief History of Time", author: "Stephen Hawking", category: "Science", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400" },
+            { title: "Cosmos", author: "Carl Sagan", category: "Science", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400" },
+            { title: "Sapiens", author: "Yuval Noah Harari", category: "Science", image: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=400" },
+
+            // History
+            { title: "Guns, Germs, and Steel", author: "Jared Diamond", category: "History", image: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=400" },
+            { title: "India After Gandhi", author: "Ramachandra Guha", category: "History", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "Discovery of India", author: "Jawaharlal Nehru", category: "History", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+
+            // Indian Literature
+            { title: "The God of Small Things", author: "Arundhati Roy", category: "Indian Literature", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+            { title: "Midnight's Children", author: "Salman Rushdie", category: "Indian Literature", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "Malgudi Days", author: "R. K. Narayan", category: "Indian Literature", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "The Palace of Illusions", author: "Chitra Banerjee Divakaruni", category: "Indian Literature", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+
+            // Spirituality & Philosophy
+            { title: "Bhagavad Gita", author: "Vyasa", category: "Spirituality", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "Meditations", author: "Marcus Aurelius", category: "Spirituality", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "Siddhartha", author: "Hermann Hesse", category: "Spirituality", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+
+            // Exam Preparation
+            { title: "UPSC Civil Services Guide", author: "Standard Editorial", category: "Exam Prep", image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { title: "JEE Advanced Mathematics", author: "Academic Board", category: "Exam Prep", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400" },
+            { title: "NEET Biology Masterclass", author: "Academic Board", category: "Exam Prep", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400" },
+
+            // Children's Books
+            { title: "Charlotte's Web", author: "E. B. White", category: "Children's", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { title: "Matilda", author: "Roald Dahl", category: "Children's", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "The Little Prince", author: "Antoine de Saint-Exupéry", category: "Children's", image: "https://images.unsplash.com/photo-1518676599625-583ad1667f33?w=400" },
+
+            // Horror
+            { title: "The Shining", author: "Stephen King", category: "Horror", image: "https://images.unsplash.com/photo-1509021436468-8977c806e017?w=400" },
+            { title: "Dracula", author: "Bram Stoker", category: "Horror", image: "https://images.unsplash.com/photo-1509021436468-8977c806e017?w=400" },
+            { title: "Frankenstein", author: "Mary Shelley", category: "Horror", image: "https://images.unsplash.com/photo-1509021436468-8977c806e017?w=400" },
+
+            // Science Fiction
+            { title: "Dune", author: "Frank Herbert", category: "Science Fiction", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400" },
+            { title: "The Martian", author: "Andy Weir", category: "Science Fiction", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400" },
+            { title: "Project Hail Mary", author: "Andy Weir", category: "Science Fiction", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400" },
+
+            // Biography & Memoir
+            { title: "Steve Jobs", author: "Walter Isaacson", category: "Biography", image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400" },
+            { title: "Wings of Fire", author: "A. P. J. Abdul Kalam", category: "Biography", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
+            { title: "My Experiments with Truth", author: "Mahatma Gandhi", category: "Biography", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" }
+        ];
+
+        // DYNAMIC CATEGORY RENDERER
+        function renderCategories() {
+            const categories = ["All", ...new Set(booksData.map(b => b.category))];
+            const container = document.getElementById('categoryContainer');
+            
+            container.innerHTML = categories.map((cat, index) => 
+                `<button class="cat-btn ${index === 0 ? 'active' : ''}" onclick="filterCategory('${cat}', this)">${cat}</button>`
+            ).join('');
+
+            document.getElementById('totalCategoriesCount').innerText = categories.length - 1;
+        }
+
+        // DYNAMIC BOOK CARD RENDERER
+        function renderBooks(data, targetContainerId) {
+            const container = document.getElementById(targetContainerId);
+            container.innerHTML = data.map(book => `
+                <div class="book-card">
+                    <div>
+                        <img src="${book.image}" alt="${book.title}">
+                        <span class="badge">${book.category}</span>
+                        <h3>${book.title}</h3>
+                        <p>${book.author}</p>
+                    </div>
+                    <button class="btn-glow" style="width: 100%; font-size: 14px;" onclick="openModal('${book.title.replace(/'/g, "\\'")}', '${book.author.replace(/'/g, "\\'")}', '${book.category}')">Read Info</button>
+                </div>
+            `).join('');
+        }
+
+        // INITIALIZE APP
+        window.onload = () => {
+            renderCategories();
+            renderBooks(booksData, 'booksContainer');
+            renderBooks(booksData.slice(0, 6), 'featuredBooksContainer');
+            document.getElementById('totalBooksCount').innerText = booksData.length;
+        };
+
+        // NAVIGATION SWITCHER
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // LIVE SEARCH
+        function filterBooks() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = booksData.filter(b => 
+                b.title.toLowerCase().includes(query) || 
+                b.author.toLowerCase().includes(query) ||
+                b.category.toLowerCase().includes(query)
+            );
+            renderBooks(filtered, 'booksContainer');
+        }
+
+        // CATEGORY FILTER
+        function filterCategory(category, btnElement) {
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            if (category === 'All') {
+                renderBooks(booksData, 'booksContainer');
+            } else {
+                const filtered = booksData.filter(b => b.category === category);
+                renderBooks(filtered, 'booksContainer');
+            }
+        }
+
+        // MODAL HANDLERS
+        function openModal(title, author, category) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalAuthor').innerText = "Author: " + author;
+            document.getElementById('modalDesc').innerText = `Category: ${category}. This book is part of our digital library collection. Click below to issue or read the PDF online.`;
+            document.getElementById('bookModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('bookModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
